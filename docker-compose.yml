@@ -1,0 +1,8 @@
+services:
+  remix-mui:
+    build:
+      context: .
+    container_name: remix-mui
+    stop_grace_period: 500ms
+    ports:
+      - '3005:3000'

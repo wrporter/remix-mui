@@ -29,7 +29,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { Link } from "@remix-run/react";
+import {Link, useLoaderData} from "@remix-run/react";
 import {
   Favorite as FavoriteIcon,
   Share as ShareIcon,
@@ -39,6 +39,29 @@ import {
 } from "@mui/icons-material";
 
 import { useState } from "react";
+import {json} from '@remix-run/node';
+import { ClientOnly } from "remix-utils/client-only";
+import {useHints} from '~/utils/client-hints.js';
+
+const dateFormat: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+  timeZoneName: "short",
+};
+
+function formatDate(dateStr: string, timeZone: string): string {
+  return new Date(dateStr).toLocaleDateString('en-US', {...dateFormat, timeZone});
+}
+
+export async function loader() {
+  const data = await new Promise((resolve) => setTimeout(() => resolve('got data?'), 1000))
+  return json({data, date: new Date()})
+}
 
 function AddressForm() {
   const [age, setAge] = useState("");
@@ -369,9 +392,22 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function Mui() {
+  const data = useLoaderData();
+  const hints = useHints();
   return (
     <Container fixed>
       <h1>Welcome to Remix &lt;&gt; Mui</h1>
+
+      <div>{JSON.stringify(data)}</div>
+      {/*<ClientOnly>*/}
+      {/*  {() => (*/}
+          <div>
+            {JSON.stringify(hints)}
+            {formatDate(data.date, hints.timeZone)}
+          </div>
+      {/*  )}*/}
+      {/*</ClientOnly>*/}
+
       <Stack spacing={2}>
         <Item>
           <AddressForm />
